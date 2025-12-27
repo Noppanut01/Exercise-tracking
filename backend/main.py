@@ -22,9 +22,25 @@ app = FastAPI(
 )
 
 # CORS middleware for frontend
+# Allow local development and Railway domains
+allowed_origins = [
+    "http://localhost:3000",
+    "http://localhost:3001",
+]
+
+# Add Railway frontend domain if set in environment
+railway_frontend = os.getenv("FRONTEND_URL")
+if railway_frontend:
+    allowed_origins.append(railway_frontend)
+
+# In production, you can also allow all Railway domains
+if os.getenv("RAILWAY_ENVIRONMENT"):
+    allowed_origins.append("https://*.up.railway.app")
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000"],  # Next.js default port
+    allow_origins=allowed_origins,
+    allow_origin_regex=r"https://.*\.up\.railway\.app",  # Allow all Railway domains
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
